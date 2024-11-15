@@ -73,17 +73,17 @@
 
     Private Sub RoundRobin_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Quantum.Text = 2
-        AT_P0.Text = 3
-        AT_P1.Text = 1
-        AT_P2.Text = 2
-        AT_P3.Text = 1
-        AT_P4.Text = 5
+        AT_P0.Text = 2
+        AT_P1.Text = 0
+        AT_P2.Text = 1
+        AT_P3.Text = 3
+        AT_P4.Text = 2
 
-        BT_P0.Text = 6
-        BT_P1.Text = 3
-        BT_P2.Text = 9
-        BT_P3.Text = 6
-        BT_P4.Text = 3
+        BT_P0.Text = 3
+        BT_P1.Text = 5
+        BT_P2.Text = 4
+        BT_P3.Text = 2
+        BT_P4.Text = 1
         For i = 0 To numOfProcess - 1
             Controls($"P{i}Label").Visible = True
             Controls($"AT_P{i}").Visible = True
@@ -93,6 +93,7 @@
             Controls($"WT_P{i}").Visible = True
             Controls($"GC_Label{i}").Visible = False
         Next
+        Quantum.Visible = True
         Quantum.Focus()
 
         Controls($"GC_{0}").Width = 5
@@ -154,38 +155,79 @@
         copyAT.AddRange(AT)
 
         ' Sort the AT list
-        myTool.sortList(AT, AT.Count - 1)
+        For i = 0 To AT.Count - 2
+            For j = 0 To AT.Count - i - 2
+                If AT(j) > AT(j + 1) Then
+                    Dim tempAT As Integer = AT(j)
+                    AT(j) = AT(j + 1)
+                    AT(j + 1) = tempAT
 
-        ' Find original indices for sorted AT elements
-        For i = 0 To AT.Count - 1
-            For j = 0 To copyAT.Count - 1
-                If AT(i) = copyAT(j) AndAlso Not isProcessAdded(j) Then
-                    processOrder.Add(j)
-                    isProcessAdded(j) = True
-                    Exit For
+                    Dim tempIndex As Integer = ATIndex(j)
+                    ATIndex(j) = ATIndex(j + 1)
+                    ATIndex(j + 1) = tempIndex
                 End If
             Next
         Next
 
-        ' Debug output to verify process order
-        Debug.WriteLine("Process Order (based on original indices):")
-        For Each index In processOrder
-            Debug.WriteLine($"{index}")
+        For Each ATs In AT
+            Debug.WriteLine(ATs)
+        Next
+
+        For i = 0 To AT.Count - 1
+            processOrder.Add(ATIndex(i))
         Next
 
 
-        For i = 0 To numOfProcess - 1
-            While BT(processOrder(i)) > 0
+        Dim quant As Integer = Val(Quantum.Text) ' Quantum time
+        Dim time As Integer = 0 ' Global time counter
+        Dim remainingBT As New List(Of Integer)(BT) ' Remaining burst times for each process
+        Dim cur As Integer = 0 ' Gantt chart cursor
 
-            End While
-        Next
-        'For x = 0 To processOrder.Count - 1
-        '    Debug.WriteLine($"Process {x}: {processOrder(x)}")
-        'Next
-        ' Display the finish times for verification or further processing
-        'For i = 0 To numOfProcess - 1
-        '    Debug.WriteLine($"Process {i}: Finish Time = {FT(i)}")
-        'Next
+        Dim allProcessesCompleted As Boolean = False
+        Dim ganttIndex As Integer = 0 ' Index for Gantt chart labels
+
+        ' Loop until all processes are completed
+        While Not allProcessesCompleted
+            allProcessesCompleted = True
+
+            ' Loop over each process in the order of arrival
+            For i = 0 To numOfProcess - 1
+                Dim processIndex As Integer = processOrder(i)
+
+                ' Check if process has any remaining burst time
+                If remainingBT(processIndex) > 0 Then
+                    allProcessesCompleted = False ' There is still work to be done
+
+                    ' Determine how much time to spend on this process
+                    Dim timeSpent As Integer
+                    If remainingBT(processIndex) < quant Then
+                        timeSpent = remainingBT(processIndex)
+                    Else
+                        timeSpent = quant
+                    End If
+
+                    ' Update Gantt chart for the time slice
+                    Dim startTime As Integer = time
+                    time += timeSpent
+                    Dim endTime As Integer = time
+
+                    ' Update remaining burst time for the process
+                    remainingBT(processIndex) -= timeSpent
+
+                    ' Set Gantt chart color and label for the current time slice
+                    For k = startTime To endTime - 1
+                        Controls($"GC_{k}").BackColor = myTool.getColor(processIndex)
+                    Next
+
+                    '' Set Gantt chart label for the current slice end time
+                    'Controls($"GC_Label{ganttIndex}").Text = $"{endTime}"
+                    'Controls($"GC_Label{ganttIndex}").Visible = True
+                    'Controls($"GC_Label{ganttIndex}").Location = New Point(Controls($"GC_{endTime}").Location.X - 18, 473)
+                    ganttIndex += 1 ' Move to the next Gantt chart label
+                End If
+            Next
+        End While
+
     End Sub
 
 
