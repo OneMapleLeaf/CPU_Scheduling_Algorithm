@@ -57,7 +57,7 @@ Public Class Tool
     End Sub
 
     Public Function isNumLessThan10(input As Integer)
-        If input > 10 Then
+        If input > 10 Or input < 0 Then
             Return False
         End If
         Return True
@@ -116,6 +116,24 @@ Public Class Tool
         Return False
     End Function
 
+    Public Sub ShowList(num As List(Of Integer))
+        Dim str As String = ""
 
+        For i = 0 To num.Count - 1
+            str += num(i) + vbCrLf
+        Next
+
+        MessageBox.Show(str)
+    End Sub
+
+    Public Sub ShowArray(num())
+        Dim str As String = ""
+
+        For i = 0 To num.Count - 1
+            str += num(i) + vbCrLf
+        Next
+
+        MessageBox.Show(str)
+    End Sub
 
 End Class

@@ -1,5 +1,5 @@
 ﻿Public Class RoundRobin_Form
-    Public numOfProcess As Integer = 5
+    Public numOfProcess As Integer
     Dim totalFT As Integer = 0
 
     Dim myTool As Tool = New Tool()
@@ -13,7 +13,7 @@
             Controls($"FT_P{i}").Visible = False
             Controls($"TAT_P{i}").Visible = False
             Controls($"WT_P{i}").Visible = False
-            Controls($"GC_Label{i}").Visible = False
+
             Controls($"AT_P{i}").Text = ""
             Controls($"BT_P{i}").Text = ""
             Controls($"FT_P{i}").Text = 0
@@ -22,8 +22,9 @@
         Next
         Controls("Quantum").Visible = False
         Controls("Quantum").Text = 0
-        For j = 0 To 79
+        For j = 0 To 80
             Controls($"GC_{j}").BackColor = Color.FromArgb(255, 255, 255)
+            Controls($"GC_Label{j}").Visible = False
         Next
         AVG_TAT.Text = ""
         AVG_WT.Text = ""
@@ -72,38 +73,41 @@
     End Sub
 
     Private Sub RoundRobin_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        Quantum.Text = 2
-        AT_P0.Text = 2
-        AT_P1.Text = 0
-        AT_P2.Text = 1
-        AT_P3.Text = 3
-        AT_P4.Text = 2
+        'Quantum.Text = 2
+        'AT_P0.Text = 2
+        'AT_P1.Text = 0
+        'AT_P2.Text = 1
+        'AT_P3.Text = 3
+        'AT_P4.Text = 2
 
-        BT_P0.Text = 3
-        BT_P1.Text = 5
-        BT_P2.Text = 4
-        BT_P3.Text = 2
-        BT_P4.Text = 1
-        For i = 0 To numOfProcess - 1
-            Controls($"P{i}Label").Visible = True
-            Controls($"AT_P{i}").Visible = True
-            Controls($"BT_P{i}").Visible = True
-            Controls($"FT_P{i}").Visible = True
-            Controls($"TAT_P{i}").Visible = True
-            Controls($"WT_P{i}").Visible = True
-            Controls($"GC_Label{i}").Visible = False
-        Next
+        'BT_P0.Text = 3
+        'BT_P1.Text = 5
+        'BT_P2.Text = 4
+        'BT_P3.Text = 2
+        'BT_P4.Text = 1
+        'For i = 0 To numOfProcess - 1
+        '    Controls($"P{i}Label").Visible = True
+        '    Controls($"AT_P{i}").Visible = True
+        '    Controls($"BT_P{i}").Visible = True
+        '    Controls($"FT_P{i}").Visible = True
+        '    Controls($"TAT_P{i}").Visible = True
+        '    Controls($"WT_P{i}").Visible = True
+
+        'Next
         Quantum.Visible = True
         Quantum.Focus()
-
-        Controls($"GC_{0}").Width = 5
-        Controls($"GC_{0}").Location = New Point(62, 446)
-        Controls($"GC_{0}").BackColor = Color.White
-        For i = 1 To 80 - 1
-            Controls($"GC_{i}").Width = 5
-            Controls($"GC_{i}").Location = New Point(Controls($"GC_{i - 1}").Location.X + 12, 446)
-            Controls($"GC_{i}").BackColor = Color.White
+        For i = 0 To 80
+            Controls($"GC_{i}").Visible = False
+            Controls($"GC_Label{i}").Visible = False
         Next
+        'Controls($"GC_{0}").Width = 5
+        'Controls($"GC_{0}").Location = New Point(62, 446)
+        'Controls($"GC_{0}").BackColor = Color.White
+        'For i = 1 To 80 - 1
+        '    Controls($"GC_{i}").Width = 5
+        '    Controls($"GC_{i}").Location = New Point(Controls($"GC_{i - 1}").Location.X + 12, 446)
+        '    Controls($"GC_{i}").BackColor = Color.White
+        'Next
     End Sub
 
     Private Sub GenerateButton_Click(sender As Object, e As EventArgs) Handles GenerateButton.Click
@@ -138,7 +142,9 @@
         Dim AT As New List(Of Integer)
         Dim ATIndex As New List(Of Integer)
         Dim BT As New List(Of Integer)
-        Dim FT As New List(Of Integer)
+        Dim FT As New List(Of Integer)(New Integer(numOfProcess - 1) {})
+        Dim TAT As New List(Of Integer)(New Integer(numOfProcess - 1) {})
+        Dim WT As New List(Of Integer)(New Integer(numOfProcess - 1) {})
 
         Dim processOrder As New List(Of Integer)
         Dim isProcessAdded As New List(Of Boolean)()
@@ -177,7 +183,6 @@
             processOrder.Add(ATIndex(i))
         Next
 
-
         Dim quant As Integer = Val(Quantum.Text) ' Quantum time
         Dim time As Integer = 0 ' Global time counter
         Dim remainingBT As New List(Of Integer)(BT) ' Remaining burst times for each process
@@ -215,19 +220,53 @@
                     remainingBT(processIndex) -= timeSpent
 
                     ' Set Gantt chart color and label for the current time slice
-                    For k = startTime To endTime - 1
+                    For k = startTime + 1 To endTime
                         Controls($"GC_{k}").BackColor = myTool.getColor(processIndex)
+                        Controls($"GC_{k}").Visible = True
+                        Controls($"GC_Label{k}").Visible = True
                     Next
 
-                    '' Set Gantt chart label for the current slice end time
-                    'Controls($"GC_Label{ganttIndex}").Text = $"{endTime}"
-                    'Controls($"GC_Label{ganttIndex}").Visible = True
-                    'Controls($"GC_Label{ganttIndex}").Location = New Point(Controls($"GC_{endTime}").Location.X - 18, 473)
+                    ' Update Finish Time (FT) for the process
+                    If remainingBT(processIndex) = 0 Then
+                        FT(processIndex) = endTime
+                    End If
+
                     ganttIndex += 1 ' Move to the next Gantt chart label
                 End If
             Next
         End While
+        Dim totalGanttChart As Integer = 0
 
+        totalGanttChart = FT(processOrder(numOfProcess - 1))
+
+        If totalGanttChart > 80 Then
+            MessageBox.Show("Burst Time Size is too big for the Gantt Chart. Please reduce the Burst Time size.", "")
+            Return
+        End If
+
+        For i = 0 To FT.Count - 1
+            Controls($"FT_P{i}").Text = FT(i)
+        Next
+
+        'calculation for TAT and WT
+        Dim totalTAT As Double = 0
+        Dim totalWT As Double = 0
+
+        For k = 0 To numOfProcess - 1
+            Controls($"TAT_P{k}").Text = $"{FT(k) - Controls($"AT_P{k}").Text}"
+            TAT(k) = Controls($"TAT_P{k}").Text
+            Controls($"WT_P{k}").Text = $"{TAT(k) - BT(k)}"
+            WT(k) = Controls($"WT_P{k}").Text
+        Next
+
+        For l = 0 To numOfProcess - 1
+            totalTAT += TAT(l)
+            totalWT += WT(l)
+        Next
+
+        'calculation for avg TAT and WT
+        AVG_TAT.Text = $"{(totalTAT / numOfProcess).ToString("0.00")} ms"
+        AVG_WT.Text = $"{(totalWT / numOfProcess).ToString("0.00")} ms"
     End Sub
 
 

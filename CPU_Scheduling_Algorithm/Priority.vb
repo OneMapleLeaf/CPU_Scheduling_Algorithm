@@ -35,13 +35,9 @@
         '    Controls($"GC_Label{i}").Visible = False
         'Next
 
-        Controls($"GC_{0}").Width = 5
-        Controls($"GC_{0}").Location = New Point(90, 430)
-        Controls($"GC_{0}").BackColor = Color.White
-        For i = 1 To 80 - 1
-            Controls($"GC_{i}").Width = 5
-            Controls($"GC_{i}").Location = New Point(Controls($"GC_{i - 1}").Location.X + 12, 430)
-            Controls($"GC_{i}").BackColor = Color.White
+
+        For i = 0 To 80
+            Controls($"GC_{i}").Visible = False
         Next
     End Sub
 
@@ -232,6 +228,7 @@
         'generate gantt chart
         Dim cur As Integer = 0
         Dim finishTime As Integer = 0
+        Dim totalGanttChart As Integer = 0
 
         For i = 0 To numOfProcess - 1
             Dim processIndex = processOrder(i)
@@ -239,14 +236,28 @@
             totalFT += finishTime
             FT(processIndex) = finishTime
             Controls($"FT_P{processIndex}").Text = $"{finishTime}"
-            For k = cur To finishTime - 1
-                Controls($"GC_{k}").BackColor = myTool.getColor(processIndex)
+        Next
 
+        totalGanttChart = FT(processOrder(numOfProcess - 1))
+
+        If totalGanttChart > 80 Then
+            MessageBox.Show("Burst Time Size is too big for the Gantt Chart. Please reduce the Burst Time size.", "")
+            Return
+        End If
+
+        Controls($"GC_Label{0}").Visible = True
+        Dim indexNum = 1
+        For j = 0 To numOfProcess - 1
+            Debug.WriteLine($"J: {j}")
+            Debug.WriteLine($"BT: {BT(j)}")
+            For k = 0 To BT(j) - 1
+                Controls($"GC_{indexNum}").BackColor = myTool.getColor(processOrder(j))
+                indexNum += 1
             Next
-            Controls($"GC_Label{i}").Text = finishTime
+        Next
+        For i = 1 To totalGanttChart
             Controls($"GC_Label{i}").Visible = True
-            Controls($"GC_Label{i}").Location = New Point(Controls($"GC_{finishTime}").Location.X - 18, 473)
-            cur = finishTime
+            Controls($"GC_{i}").Visible = True
         Next
 
         'calculation for TAT and WT
@@ -284,15 +295,16 @@
             Controls($"FT_P{i}").Visible = False
             Controls($"TAT_P{i}").Visible = False
             Controls($"WT_P{i}").Visible = False
-            Controls($"GC_Label{i}").Visible = False
+
             Controls($"AT_P{i}").Text = ""
             Controls($"BT_P{i}").Text = ""
             Controls($"FT_P{i}").Text = 0
             Controls($"TAT_P{i}").Text = 0
             Controls($"WT_P{i}").Text = 0
         Next
-        For j = 0 To 79
+        For j = 0 To 80
             Controls($"GC_{j}").BackColor = Color.FromArgb(255, 255, 255)
+            Controls($"GC_Label{j}").Visible = False
         Next
         AVG_TAT.Text = ""
         AVG_WT.Text = ""
@@ -302,5 +314,17 @@
 
     Private Sub ExitButton_Click(sender As Object, e As EventArgs) Handles ExitButton.Click
         Application.Exit()
+    End Sub
+
+    Private Sub GC_Label2_Click(sender As Object, e As EventArgs) Handles GC_Label2.Click
+
+    End Sub
+
+    Private Sub MaterialLabel11_Click(sender As Object, e As EventArgs) Handles GC_Label46.Click
+
+    End Sub
+
+    Private Sub MaterialLabel8_Click(sender As Object, e As EventArgs) Handles GC_Label75.Click
+
     End Sub
 End Class

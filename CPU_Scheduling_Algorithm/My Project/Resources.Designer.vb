@@ -433,6 +433,16 @@ Namespace My.Resources
         '''<summary>
         '''  Looks up a localized resource of type System.Drawing.Bitmap.
         '''</summary>
+        Friend ReadOnly Property PriorityUIi() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("PriorityUIi", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
         Friend ReadOnly Property process__400_x_300_px_() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("process (400 x 300 px)", resourceCulture)
@@ -456,6 +466,16 @@ Namespace My.Resources
         Friend ReadOnly Property RoundrobinUI() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("RoundrobinUI", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property RoundRobinUIi() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("RoundRobinUIi", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property

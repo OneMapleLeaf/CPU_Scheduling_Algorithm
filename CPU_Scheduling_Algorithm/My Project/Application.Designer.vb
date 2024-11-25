@@ -33,7 +33,7 @@ Namespace My
         
         <Global.System.Diagnostics.DebuggerStepThroughAttribute()>  _
         Protected Overrides Sub OnCreateMainForm()
-            Me.MainForm = Global.CPU_Scheduling_Algorithm.RoundRobin_Form
+            Me.MainForm = Global.CPU_Scheduling_Algorithm.Menu
         End Sub
         
         <Global.System.Diagnostics.DebuggerStepThroughAttribute()>  _
