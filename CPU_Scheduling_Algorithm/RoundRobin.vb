@@ -5,7 +5,11 @@
     Dim myTool As Tool = New Tool()
 
     Dim buttonScale = 0.75F
+
     Private Sub ResetButton_Click(sender As Object, e As EventArgs) Handles ResetButton.Click
+        If GenerateButton.Visible = False Then
+            GenerateButton.Visible = True
+        End If
         For i = 0 To numOfProcess - 1
             Controls($"P{i}Label").Visible = False
             Controls($"AT_P{i}").Visible = False
@@ -139,17 +143,18 @@
             End If
         Next
 
+
+         GenerateButton.Visible = False
         Dim AT As New List(Of Integer)
         Dim ATIndex As New List(Of Integer)
         Dim BT As New List(Of Integer)
-        Dim FT As New List(Of Integer)(New Integer(numOfProcess - 1) {})
+        Dim FT As New List(Of Integer)
         Dim TAT As New List(Of Integer)(New Integer(numOfProcess - 1) {})
         Dim WT As New List(Of Integer)(New Integer(numOfProcess - 1) {})
 
         Dim processOrder As New List(Of Integer)
         Dim isProcessAdded As New List(Of Boolean)()
 
-        ' Populate the lists from controls
         For i = 0 To numOfProcess - 1
             AT.Add(Controls($"AT_P{i}").Text)
             ATIndex.Add(i)
@@ -160,7 +165,6 @@
         Dim copyAT As New List(Of Integer)
         copyAT.AddRange(AT)
 
-        ' Sort the AT list
         For i = 0 To AT.Count - 2
             For j = 0 To AT.Count - i - 2
                 If AT(j) > AT(j + 1) Then
@@ -183,27 +187,23 @@
             processOrder.Add(ATIndex(i))
         Next
 
-        Dim quant As Integer = Val(Quantum.Text) ' Quantum time
-        Dim time As Integer = 0 ' Global time counter
-        Dim remainingBT As New List(Of Integer)(BT) ' Remaining burst times for each process
-        Dim cur As Integer = 0 ' Gantt chart cursor
+        Dim quant As Integer = Val(Quantum.Text)
+        Dim time As Integer = 0
+        Dim remainingBT As New List(Of Integer)(BT)
+        Dim cur As Integer = 0
 
         Dim allProcessesCompleted As Boolean = False
-        Dim ganttIndex As Integer = 0 ' Index for Gantt chart labels
+        Dim ganttIndex As Integer = 0
 
-        ' Loop until all processes are completed
         While Not allProcessesCompleted
             allProcessesCompleted = True
 
-            ' Loop over each process in the order of arrival
             For i = 0 To numOfProcess - 1
                 Dim processIndex As Integer = processOrder(i)
 
-                ' Check if process has any remaining burst time
                 If remainingBT(processIndex) > 0 Then
-                    allProcessesCompleted = False ' There is still work to be done
+                    allProcessesCompleted = False
 
-                    ' Determine how much time to spend on this process
                     Dim timeSpent As Integer
                     If remainingBT(processIndex) < quant Then
                         timeSpent = remainingBT(processIndex)
@@ -211,27 +211,24 @@
                         timeSpent = quant
                     End If
 
-                    ' Update Gantt chart for the time slice
                     Dim startTime As Integer = time
                     time += timeSpent
                     Dim endTime As Integer = time
 
-                    ' Update remaining burst time for the process
                     remainingBT(processIndex) -= timeSpent
 
-                    ' Set Gantt chart color and label for the current time slice
                     For k = startTime + 1 To endTime
                         Controls($"GC_{k}").BackColor = myTool.getColor(processIndex)
                         Controls($"GC_{k}").Visible = True
                         Controls($"GC_Label{k}").Visible = True
                     Next
 
-                    ' Update Finish Time (FT) for the process
+
                     If remainingBT(processIndex) = 0 Then
                         FT(processIndex) = endTime
                     End If
 
-                    ganttIndex += 1 ' Move to the next Gantt chart label
+                    ganttIndex += 1
                 End If
             Next
         End While

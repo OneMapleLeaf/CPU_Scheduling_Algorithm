@@ -154,6 +154,7 @@ Public Class FCFS_Form
 
         Next
 
+        GenerateButton.Visible = False
         ' Add remaining processes in sorted order
         Dim NonZeroAT As New List(Of Integer)
         Dim NonZeroATCopy As New List(Of Integer)
@@ -267,6 +268,9 @@ Public Class FCFS_Form
 
 
     Private Sub ResetButton_Click(sender As Object, e As EventArgs) Handles ResetButton.Click
+        If GenerateButton.Visible = False Then
+            GenerateButton.Visible = True
+        End If
         For i = 0 To numOfProcess - 1
             Controls($"P{i}Label").Visible = False
             Controls($"AT_P{i}").Visible = False

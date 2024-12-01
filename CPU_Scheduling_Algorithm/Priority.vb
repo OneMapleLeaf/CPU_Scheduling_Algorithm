@@ -107,6 +107,7 @@
             End If
         Next
 
+        GenerateButton.Visible = False
         Dim AT As New List(Of Integer)
         Dim PT As New List(Of Integer)
         Dim BT As New List(Of Integer)
@@ -287,6 +288,9 @@
     End Sub
 
     Private Sub ResetButton_Click(sender As Object, e As EventArgs) Handles ResetButton.Click
+        If GenerateButton.Visible = False Then
+            GenerateButton.Visible = True
+        End If
         For i = 0 To numOfProcess - 1
             Controls($"P{i}Label").Visible = False
             Controls($"AT_P{i}").Visible = False

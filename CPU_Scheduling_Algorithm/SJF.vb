@@ -97,6 +97,9 @@ Public Class SJF_Form
     End Sub
 
     Private Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
+        If GenerateButton.Visible = False Then
+            GenerateButton.Visible = True
+        End If
         For i = 0 To numOfProcess - 1
             Controls($"P{i}Label").Visible = False
             Controls($"AT_P{i}").Visible = False
@@ -143,6 +146,8 @@ Public Class SJF_Form
             End If
         Next
 
+
+        GenerateButton.Visible = False
         Dim AT As New List(Of Integer)
         Dim BT As New List(Of Integer)
 
